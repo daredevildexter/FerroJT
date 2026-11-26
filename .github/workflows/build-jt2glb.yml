@@ -1,0 +1,38 @@
+name: Build jt2glb.exe
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Build release binary
+        shell: cmd
+        run: cargo build --release --workspace
+
+      - name: Copy binary as jt2glb.exe
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path target\release -Filter "*.exe" |
+            Where-Object { $_.Name -notlike "cargo*" -and $_.Name -notlike "rustc*" } |
+            Select-Object -First 1
+          if (-not $exe) {
+            Write-Error "No built .exe found in target\release"
+            exit 1
+          }
+          Copy-Item $exe.FullName -Destination "target\release\jt2glb.exe" -Force
+
+      - name: Upload jt2glb.exe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jt2glb-windows-x64
+          path: target\release\jt2glb.exe
