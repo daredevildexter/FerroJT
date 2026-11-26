@@ -15,21 +15,19 @@ jobs:
         with:
           targets: x86_64-pc-windows-msvc
 
-      - name: Build release binary
+      - name: Build CLI release binary
         shell: cmd
-        run: cargo build --release --workspace
+        run: cargo build --release -p ferrojt-cli
 
-      - name: Copy binary as jt2glb.exe
+      - name: Copy ferrojt-cli.exe as jt2glb.exe
         shell: pwsh
         run: |
-          $exe = Get-ChildItem -Path target\release -Filter "*.exe" |
-            Where-Object { $_.Name -notlike "cargo*" -and $_.Name -notlike "rustc*" } |
-            Select-Object -First 1
-          if (-not $exe) {
-            Write-Error "No built .exe found in target\release"
+          $src = "target\release\ferrojt-cli.exe"
+          if (-not (Test-Path $src)) {
+            Write-Error "Could not find $src"
             exit 1
           }
-          Copy-Item $exe.FullName -Destination "target\release\jt2glb.exe" -Force
+          Copy-Item $src -Destination "target\release\jt2glb.exe" -Force
 
       - name: Upload jt2glb.exe artifact
         uses: actions/upload-artifact@v4
