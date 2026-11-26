@@ -19,10 +19,10 @@ jobs:
         shell: cmd
         run: cargo build --release -p ferrojt-cli
 
-      - name: Copy ferrojt-cli.exe as jt2glb.exe
+      - name: Copy ferrojt.exe as jt2glb.exe
         shell: pwsh
         run: |
-          $src = "target\release\ferrojt-cli.exe"
+          $src = "target\release\ferrojt.exe"
           if (-not (Test-Path $src)) {
             Write-Error "Could not find $src"
             exit 1
